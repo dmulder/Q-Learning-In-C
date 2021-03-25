@@ -20,9 +20,10 @@
 double gammaLR = 0.8;
 int max_index[8];
 
-int returnRandom()
+int randrange(int start, int stop)
 {
-	return rand() % 8;
+	int width = stop - start;
+	return start + (rand() % width);
 }
 
 double update(int current_state, int action, double rMatrix[][8],
@@ -47,7 +48,7 @@ double update(int current_state, int action, double rMatrix[][8],
 	}
 
 	//Select a random out of all maximum
-	int a = returnRandom() % j;
+	int a = randrange(0, 8) % j;
 	index_of_max = max_index[a];
 
 	max_value = qMatrix[action][index_of_max];
@@ -94,7 +95,7 @@ int available_actions(int state, int available_acts[], double rMatrix[][8])
 
 int sample_next_action(int size, int available_acts[])
 {
-	int a = returnRandom();
+	int a = randrange(0, 8);
 	int next_action = available_acts[a % size];
 	return next_action;
 }
