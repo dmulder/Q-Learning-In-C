@@ -20,19 +20,6 @@
 double gammaLR = 0.8;
 int max_index[8];
 
-void printArray(double a[][8])
-{
-	int i, j;
-
-	printf("\nMatrix: \n");
-	for (i = 0; i < 8; i++) {
-		for (j = 0; j < 8; j++) {
-			printf("%f\t", (a[i][j]));
-		}
-		printf("\n");
-	}
-}
-
 int returnRandom()
 {
 	return rand() % 8;

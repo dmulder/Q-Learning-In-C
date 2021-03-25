@@ -19,7 +19,6 @@
 #include <stdlib.h>
 #define RAN_LIM 500000
 
-void printArray(double a[][8]);
 int returnRandom();
 double update(int current_state, int action, double rMatrix[][8],
 	      double qMatrix[][8]);
