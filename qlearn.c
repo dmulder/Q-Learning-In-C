@@ -33,13 +33,13 @@ void printArray(double a[][8])
 	}
 }
 
-int returnRandom(int *ran_top, int *ran)
+int returnRandom()
 {
-	return ran[(*ran_top)++];
+	return rand() % 8;
 }
 
 double update(int current_state, int action, double rMatrix[][8],
-	      double qMatrix[][8], int *ran_top, int *ran)
+	      double qMatrix[][8])
 {
 	int i = 0, j = 0, k = 0, index_of_max;
 	double temp_max = 0.0, max_value = 0.0, sumA = 0.0;
@@ -60,7 +60,7 @@ double update(int current_state, int action, double rMatrix[][8],
 	}
 
 	//Select a random out of all maximum
-	int a = returnRandom(ran_top, ran) % j;
+	int a = returnRandom() % j;
 	index_of_max = max_index[a];
 
 	max_value = qMatrix[action][index_of_max];
@@ -105,9 +105,9 @@ int available_actions(int state, int available_acts[], double rMatrix[][8])
 	return k;
 }
 
-int sample_next_action(int size, int available_acts[], int *ran_top, int *ran)
+int sample_next_action(int size, int available_acts[])
 {
-	int a = returnRandom(ran_top, ran);
+	int a = returnRandom();
 	int next_action = available_acts[a % size];
 	return next_action;
 }

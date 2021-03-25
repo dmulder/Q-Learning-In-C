@@ -25,14 +25,9 @@ int main()
 	double final_max = 0.0, scores[100000], score = 0.0;
 	double qMatrix[8][8], rMatrix[8][8];
 	int available_acts[8];
-	int ran_top = 0, ran[RAN_LIM];
 
 	printf("Enter the initial state: ");
 	scanf("%d", &initial_state);
-
-	for (int i = 0; i < RAN_LIM; i++) {
-		ran[i] = rand() % 8;
-	}
 
 	for (i = 0; i < 8; i++) {
 		for (j = 0; j < 8; j++) {
@@ -76,14 +71,12 @@ int main()
 	// Training the Q Matrix
 	for (i = 0; i < 500; i++) {
 
-		current_state = returnRandom(&ran_top, ran);
+		current_state = returnRandom();
 		size_av_actions = available_actions(current_state,
 						    available_acts, rMatrix);
-		action = sample_next_action(size_av_actions, available_acts,
-					    &ran_top, ran);
+		action = sample_next_action(size_av_actions, available_acts);
 
-		score = update(current_state, action, rMatrix, qMatrix,
-			       &ran_top, ran);
+		score = update(current_state, action, rMatrix, qMatrix);
 		scores[i] = score;
 
 		printf("\nScore : %f", score);

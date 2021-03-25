@@ -20,8 +20,8 @@
 #define RAN_LIM 500000
 
 void printArray(double a[][8]);
-int returnRandom(int *ran_top, int *ran);
+int returnRandom();
 double update(int current_state, int action, double rMatrix[][8],
-	      double qMatrix[][8], int *ran_top, int *ran);
+	      double qMatrix[][8]);
 int available_actions(int state, int available_acts[], double rMatrix[][8]);
-int sample_next_action(int size, int available_acts[], int *ran_top, int *ran);
+int sample_next_action(int size, int available_acts[]);
