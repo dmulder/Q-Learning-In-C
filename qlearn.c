@@ -17,23 +17,19 @@
 */
 #include "qlearn.h"
 
-double gammaLR = 0.8;
-int max_index[8];
-
 static int randrange(int start, int stop, int step)
 {
 	int width = (stop - start)/step;
 	return start + ((rand() % width)*step);
 }
 
-static double update(int current_state, int action, double rMatrix[][8],
-		     double qMatrix[][8])
+static double q_matrix_max(double qMatrix[][8], int state_size, int action)
 {
-	int i = 0, j = 0, k = 0, index_of_max;
-	double temp_max = 0.0, max_value = 0.0, sumA = 0.0;
-
-	//Collecting all the indexes where we have max in action row
-	for (i = 0; i < 8; i++) {
+	int *max_index = malloc(sizeof(int)*state_size);
+	double temp_max = 0.0;
+	int index_of_max;
+	int j = 0;
+	for (int i = 0; i < state_size; i++) {
 		max_index[i] = 0;
 
 		if (temp_max == qMatrix[action][i]) {
@@ -48,17 +44,24 @@ static double update(int current_state, int action, double rMatrix[][8],
 	}
 
 	//Select a random out of all maximum
-	int a = randrange(0, 8, 1) % j;
-	index_of_max = max_index[a];
+	index_of_max = max_index[rand() % j];
+	free(max_index);
+	return qMatrix[action][index_of_max];
+}
 
-	max_value = qMatrix[action][index_of_max];
+static double update(int current_state, int action, double rMatrix[][8],
+		     double qMatrix[][8])
+{
+	double temp_max = 0.0, max_value = 0.0, sumA = 0.0;
+	double gammaLR = 0.8;
+
+	max_value = q_matrix_max(qMatrix, 8, action);
 
 	//Main updation
 	qMatrix[current_state][action] =
 	    rMatrix[current_state][action] + (gammaLR * max_value);
-	temp_max = 0.0;
-	for (i = 0; i < 8; i++) {
-		for (j = 0; j < 8; j++) {
+	for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++) {
 			if (qMatrix[i][j] > temp_max) {
 				temp_max = qMatrix[i][j];
 			}
@@ -66,8 +69,8 @@ static double update(int current_state, int action, double rMatrix[][8],
 	}
 
 	if (temp_max > 0) {
-		for (i = 0; i < 8; i++) {
-			for (j = 0; j < 8; j++) {
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
 				sumA = sumA + (qMatrix[i][j] / temp_max);
 			}
 		}
