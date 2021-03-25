@@ -68,19 +68,7 @@ int main()
 
 	printf("%f", rMatrix[7][7]);
 
-	// Training the Q Matrix
-	for (i = 0; i < 500; i++) {
-
-		current_state = randrange(0, 8, 1);
-		size_av_actions = available_actions(current_state,
-						    available_acts, rMatrix);
-		action = sample_next_action(size_av_actions, available_acts);
-
-		score = update(current_state, action, rMatrix, qMatrix);
-		scores[i] = score;
-
-		printf("\nScore : %f", score);
-	}
+	q_learning_train(500, available_acts, scores, rMatrix, qMatrix);
 
 	//Finding the Max
 	for (i = 0; i < 8; i++) {

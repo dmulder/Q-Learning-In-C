@@ -20,14 +20,14 @@
 double gammaLR = 0.8;
 int max_index[8];
 
-int randrange(int start, int stop, int step)
+static int randrange(int start, int stop, int step)
 {
 	int width = (stop - start)/step;
 	return start + ((rand() % width)*step);
 }
 
-double update(int current_state, int action, double rMatrix[][8],
-	      double qMatrix[][8])
+static double update(int current_state, int action, double rMatrix[][8],
+		     double qMatrix[][8])
 {
 	int i = 0, j = 0, k = 0, index_of_max;
 	double temp_max = 0.0, max_value = 0.0, sumA = 0.0;
@@ -79,7 +79,7 @@ double update(int current_state, int action, double rMatrix[][8],
 	}
 }
 
-int available_actions(int state, int available_acts[], double rMatrix[][8])
+static int available_actions(int state, int available_acts[], double rMatrix[][8])
 {
 	int k = 0, j = 0;
 	while (j < 8) {
@@ -93,9 +93,28 @@ int available_actions(int state, int available_acts[], double rMatrix[][8])
 	return k;
 }
 
-int sample_next_action(int size, int available_acts[])
+static int sample_next_action(int size, int available_acts[])
 {
 	int a = randrange(0, 8, 1);
 	int next_action = available_acts[a % size];
 	return next_action;
+}
+
+void q_learning_train(int epochs, int available_acts[], double scores[], double rMatrix[][8], double qMatrix[][8])
+{
+	int current_state, size_av_actions, action;
+	double score;
+	// Training the Q Matrix
+	for (int i = 0; i < epochs; i++) {
+
+		current_state = randrange(0, 8, 1);
+		size_av_actions = available_actions(current_state,
+						    available_acts, rMatrix);
+		action = sample_next_action(size_av_actions, available_acts);
+
+		score = update(current_state, action, rMatrix, qMatrix);
+		scores[i] = score;
+
+		printf("\nScore : %f", score);
+	}
 }
