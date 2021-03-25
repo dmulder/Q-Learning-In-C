@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #define RAN_LIM 500000
 
-int randrange(int start, int end);
+int randrange(int start, int stop, int step);
 double update(int current_state, int action, double rMatrix[][8],
 	      double qMatrix[][8]);
 int available_actions(int state, int available_acts[], double rMatrix[][8]);

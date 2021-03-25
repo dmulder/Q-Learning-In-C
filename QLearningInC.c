@@ -71,7 +71,7 @@ int main()
 	// Training the Q Matrix
 	for (i = 0; i < 500; i++) {
 
-		current_state = randrange(0, 8);
+		current_state = randrange(0, 8, 1);
 		size_av_actions = available_actions(current_state,
 						    available_acts, rMatrix);
 		action = sample_next_action(size_av_actions, available_acts);
