@@ -17,13 +17,90 @@
 */
 #include "qlearn.h"
 
+int available_acts[8];
+double **rMatrix;
+
+static int available_actions(int state, int available_acts[], double **rMatrix,
+			     int action_size)
+{
+	int k = 0, j = 0;
+	while (j < action_size) {
+		if (rMatrix[state][j] >= 0.0) {
+			available_acts[k] = j;
+			k++;
+		}
+		j++;
+	}
+	printf("\n");
+	return k;
+}
+
+static int sample_next_action(int size, int available_acts[], int action_size)
+{
+	int a = randrange(0, action_size, 1);
+	int next_action = available_acts[a % size];
+	return next_action;
+}
+
+static int select_action(int state, int action_size)
+{
+	int size_av_actions, action;
+	size_av_actions = available_actions(state,
+					    available_acts, rMatrix,
+					    action_size);
+	action = sample_next_action(size_av_actions, available_acts,
+				    action_size);
+	return action;
+}
+
+static double reward(int state, int action)
+{
+	return rMatrix[state][action];
+}
+
+static void q_learning_train(int epochs, int available_acts[], double scores[],
+			     double **qMatrix, int state_size, int action_size)
+{
+	int current_state;
+	double score;
+	double temp_max = 0.0, sumA = 0.0;
+	// Training the Q Matrix
+	for (int i = 0; i < epochs; i++) {
+		q_learn_explore(qMatrix, state_size, action_size,
+				select_action, reward);
+
+		for (int i = 0; i < state_size; i++) {
+			for (int j = 0; j < action_size; j++) {
+				if (qMatrix[i][j] > temp_max) {
+					temp_max = qMatrix[i][j];
+				}
+			}
+		}
+
+		if (temp_max > 0) {
+			for (int i = 0; i < state_size; i++) {
+				for (int j = 0; j < action_size; j++) {
+					sumA = sumA + (qMatrix[i][j] / temp_max);
+				}
+			}
+
+			sumA = sumA * 100;
+			score = sumA;
+		} else {
+			score = 0.0;
+		}
+		scores[i] = score;
+
+		printf("\nScore : %f", score);
+	}
+}
+
 int main()
 {
 	int initial_state, final_state = 7;
 	int current_state, size_av_actions, action;
 	double final_max = 0.0, scores[100000], score = 0.0;
-	double **qMatrix, **rMatrix;
-	int available_acts[8];
+	double **qMatrix;
 
 	qMatrix = malloc(sizeof(double*)*8);
 	rMatrix = malloc(sizeof(double*)*8);
@@ -74,7 +151,7 @@ int main()
 
 	printf("%f", rMatrix[7][7]);
 
-	q_learning_train(500, available_acts, scores, rMatrix, qMatrix, 8, 8);
+	q_learning_train(500, available_acts, scores, qMatrix, 8, 8);
 
 	//Finding the Max
 	for (int i = 0; i < 8; i++) {
