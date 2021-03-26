@@ -19,18 +19,24 @@
 
 int main()
 {
-	int i, j;
 	int initial_state, final_state = 7;
 	int current_state, size_av_actions, action;
 	double final_max = 0.0, scores[100000], score = 0.0;
-	double qMatrix[8][8], rMatrix[8][8];
+	double **qMatrix, **rMatrix;
 	int available_acts[8];
+
+	qMatrix = malloc(sizeof(double*)*8);
+	rMatrix = malloc(sizeof(double*)*8);
+	for (int i = 0; i < 8; i++) {
+		qMatrix[i] = malloc(sizeof(double)*8);
+		rMatrix[i] = malloc(sizeof(double)*8);
+	}
 
 	printf("Enter the initial state: ");
 	scanf("%d", &initial_state);
 
-	for (i = 0; i < 8; i++) {
-		for (j = 0; j < 8; j++) {
+	for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++) {
 			rMatrix[i][j] = -1.0;
 			qMatrix[i][j] = 0.0;
 
@@ -58,8 +64,8 @@ int main()
 	}
 
 	printf("\nPoints Matrix : \n");
-	for (i = 0; i < 8; i++) {
-		for (j = 0; j < 8; j++) {
+	for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++) {
 			printf("%f\t", rMatrix[i][j]);
 		}
 		printf("\n");
@@ -68,11 +74,11 @@ int main()
 
 	printf("%f", rMatrix[7][7]);
 
-	q_learning_train(500, available_acts, scores, rMatrix, qMatrix);
+	q_learning_train(500, available_acts, scores, rMatrix, qMatrix, 8, 8);
 
 	//Finding the Max
-	for (i = 0; i < 8; i++) {
-		for (j = 0; j < 8; j++) {
+	for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++) {
 			if (final_max < qMatrix[i][j]) {
 				final_max = qMatrix[i][j];
 			}
@@ -80,8 +86,8 @@ int main()
 	}
 
 	printf("\n\nTrained Q Matrix: \n");
-	for (i = 0; i < 8; i++) {
-		for (j = 0; j < 8; j++) {
+	for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++) {
 			printf("%f\t", (qMatrix[i][j] / final_max * 100.0));
 		}
 		printf("\n");
@@ -125,4 +131,10 @@ int main()
 		printf("%d is the shortest path\n", curr_state);
 	}
 
+	for (int i = 0; i < 8; i++) {
+		free(qMatrix[i]);
+		free(rMatrix[i]);
+	}
+	free(qMatrix);
+	free(rMatrix);
 }

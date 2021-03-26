@@ -23,7 +23,7 @@ static int randrange(int start, int stop, int step)
 	return start + ((rand() % width)*step);
 }
 
-static double q_matrix_max(double qMatrix[][8], int state_size, int action)
+static double q_matrix_max(double **qMatrix, int state_size, int action)
 {
 	int *max_index = malloc(sizeof(int)*state_size);
 	double temp_max = 0.0;
@@ -49,19 +49,19 @@ static double q_matrix_max(double qMatrix[][8], int state_size, int action)
 	return qMatrix[action][index_of_max];
 }
 
-static double update(int current_state, int action, double rMatrix[][8],
-		     double qMatrix[][8])
+static double update(int current_state, int action, double **rMatrix,
+		     double **qMatrix, int state_size, int action_size)
 {
 	double temp_max = 0.0, max_value = 0.0, sumA = 0.0;
 	double gammaLR = 0.8;
 
-	max_value = q_matrix_max(qMatrix, 8, action);
+	max_value = q_matrix_max(qMatrix, state_size, action);
 
 	//Main updation
 	qMatrix[current_state][action] =
 	    rMatrix[current_state][action] + (gammaLR * max_value);
-	for (int i = 0; i < 8; i++) {
-		for (int j = 0; j < 8; j++) {
+	for (int i = 0; i < state_size; i++) {
+		for (int j = 0; j < action_size; j++) {
 			if (qMatrix[i][j] > temp_max) {
 				temp_max = qMatrix[i][j];
 			}
@@ -69,8 +69,8 @@ static double update(int current_state, int action, double rMatrix[][8],
 	}
 
 	if (temp_max > 0) {
-		for (int i = 0; i < 8; i++) {
-			for (int j = 0; j < 8; j++) {
+		for (int i = 0; i < state_size; i++) {
+			for (int j = 0; j < action_size; j++) {
 				sumA = sumA + (qMatrix[i][j] / temp_max);
 			}
 		}
@@ -82,10 +82,11 @@ static double update(int current_state, int action, double rMatrix[][8],
 	}
 }
 
-static int available_actions(int state, int available_acts[], double rMatrix[][8])
+static int available_actions(int state, int available_acts[], double **rMatrix,
+			     int action_size)
 {
 	int k = 0, j = 0;
-	while (j < 8) {
+	while (j < action_size) {
 		if (rMatrix[state][j] >= 0.0) {
 			available_acts[k] = j;
 			k++;
@@ -96,26 +97,31 @@ static int available_actions(int state, int available_acts[], double rMatrix[][8
 	return k;
 }
 
-static int sample_next_action(int size, int available_acts[])
+static int sample_next_action(int size, int available_acts[], int action_size)
 {
-	int a = randrange(0, 8, 1);
+	int a = randrange(0, action_size, 1);
 	int next_action = available_acts[a % size];
 	return next_action;
 }
 
-void q_learning_train(int epochs, int available_acts[], double scores[], double rMatrix[][8], double qMatrix[][8])
+void q_learning_train(int epochs, int available_acts[], double scores[],
+		      double **rMatrix, double **qMatrix, int state_size,
+		      int action_size)
 {
 	int current_state, size_av_actions, action;
 	double score;
 	// Training the Q Matrix
 	for (int i = 0; i < epochs; i++) {
 
-		current_state = randrange(0, 8, 1);
+		current_state = randrange(0, state_size, 1);
 		size_av_actions = available_actions(current_state,
-						    available_acts, rMatrix);
-		action = sample_next_action(size_av_actions, available_acts);
+						    available_acts, rMatrix,
+						    action_size);
+		action = sample_next_action(size_av_actions, available_acts,
+					    action_size);
 
-		score = update(current_state, action, rMatrix, qMatrix);
+		score = update(current_state, action, rMatrix, qMatrix,
+			       state_size, action_size);
 		scores[i] = score;
 
 		printf("\nScore : %f", score);

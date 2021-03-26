@@ -19,4 +19,6 @@
 #include <stdlib.h>
 #define RAN_LIM 500000
 
-void q_learning_train(int epochs, int available_acts[], double scores[], double rMatrix[][8], double qMatrix[][8]);
+void q_learning_train(int epochs, int available_acts[], double scores[],
+		      double **rMatrix, double **qMatrix, int state_size,
+		      int action_size);
