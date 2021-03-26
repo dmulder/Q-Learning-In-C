@@ -17,7 +17,6 @@
 */
 #include <stdio.h>
 #include <stdlib.h>
-#define RAN_LIM 500000
 
 int randrange(int start, int stop, int step);
 void q_learn_explore(double **qMatrix, int state,
