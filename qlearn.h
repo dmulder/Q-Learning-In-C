@@ -20,6 +20,14 @@
 #define RAN_LIM 500000
 
 int randrange(int start, int stop, int step);
-void q_learn_explore(double **qMatrix, int state_size, int action_size,
+void q_learn_explore(double **qMatrix, int state,
+		     int state_size, int action_size,
 		     int (*select_action)(int state, int action_size),
 		     double (*reward)(int state, int action));
+void q_learn_exploit(double **qMatrix, int state,
+		     int state_size, int action_size,
+		     double (*reward)(int state, int action));
+void q_learn(double **qMatrix, double epsilon, int state,
+	     int state_size, int action_size,
+	     int (*select_action)(int state, int action_size),
+	     double (*reward)(int state, int action));
