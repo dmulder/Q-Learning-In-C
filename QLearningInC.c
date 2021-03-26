@@ -67,8 +67,8 @@ static void q_learning_train(int epochs, int available_acts[], double scores[],
 	// Training the Q Matrix
 	for (int i = 0; i < epochs; i++) {
 		current_state = randrange(0, state_size, 1);
-		q_learn(qMatrix, 0.2, current_state, state_size, action_size,
-			select_action, reward);
+		q_learn(qMatrix, 0.2, current_state, 0.8, 0.5, state_size,
+			action_size, select_action, reward);
 
 		for (int i = 0; i < state_size; i++) {
 			for (int j = 0; j < action_size; j++) {
