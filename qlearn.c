@@ -17,100 +17,107 @@
 */
 #include "qlearn.h"
 
+void q_matrix_init(struct q_matrix *q, int state_size, int action_size)
+{
+	q->matrix = malloc(sizeof(double*)*state_size);
+	for (int i = 0; i < state_size; i++) {
+		q->matrix[i] = malloc(sizeof(double)*action_size);
+		memset(q->matrix[i], 0, sizeof(double)*action_size);
+	}
+	q->state_size = state_size;
+	q->action_size = action_size;
+}
+
+void q_matrix_destroy(struct q_matrix *q)
+{
+	for (int i = 0; i < q->state_size; i++) {
+		free(q->matrix[i]);
+	}
+	free(q->matrix);
+}
+
 int randrange(int start, int stop, int step)
 {
 	int width = (stop - start)/step;
 	return start + ((rand() % width)*step);
 }
 
-static double q_matrix_max(double **qMatrix, int state, int action_size)
+static int q_matrix_max_action(struct q_matrix *q, int state)
 {
-	double temp_max = 0.0;
-	for (int i = 0; i < action_size; i++) {
-		if (temp_max < qMatrix[state][i]) {
-			temp_max = qMatrix[state][i];
+	int *max_index = malloc(sizeof(int)*q->action_size);
+	double temp_max = -DBL_MAX;
+	int index_of_max = 0;
+	int j = 0;
+	for (int i = 0; i < q->action_size; i++) {
+		max_index[i] = 0;
+
+		if (temp_max == q->matrix[state][i]) {
+			max_index[j] = i;
+			j++;
+		} else if (temp_max < q->matrix[state][i]) {
+			j = 0;
+			temp_max = q->matrix[state][i];
+			max_index[j] = i;
+			j++;
 		}
 	}
 
-	return temp_max;
+	/*
+	 * Select a random out of all maximum
+	 */
+	index_of_max = max_index[rand() % j];
+	free(max_index);
+	return index_of_max;
 }
 
-static void update(int current_state, int action, double **qMatrix,
+static void update(int current_state, int action, struct q_matrix *q,
 		   double gamma, double lr,
-		   double (*reward)(int state, int action), int action_size)
+		   double (*reward)(int state, int action))
 {
-	double max_value = 0.0;
-
-	max_value = q_matrix_max(qMatrix, current_state, action_size);
-
 	/*
 	 * Main update
 	 */
-	qMatrix[current_state][action] = reward(current_state, action) +
-					 lr * (gamma * max_value);
+	int max_action_index = q_matrix_max_action(q, current_state);
+	double max_action = q->matrix[current_state][max_action_index];
+	q->matrix[current_state][action] = reward(current_state, action) +
+		lr * (gamma * max_action);
 }
 
 /*
  * Explore by selecting a random action
  */
-void q_learn_explore(double **qMatrix, int state,
+void q_learn_explore(struct q_matrix *q, int state,
 		     double gamma, double lr,
-		     int state_size, int action_size,
-		     int (*select_action)(int state, int action_size),
 		     double (*reward)(int state, int action))
 {
-	int action;
-	if (select_action != NULL) {
-		action = select_action(state, action_size);
-	} else {
-		action = randrange(0, action_size, 1);
-	}
-	return update(state, action, qMatrix, gamma, lr, reward, action_size);
-}
-
-static int q_matrix_max_action(double **qMatrix, int state, int action_size)
-{
-	double temp_max = 0.0;
-	int index_of_max = 0;
-	for (int i = 0; i < action_size; i++) {
-		if (temp_max < qMatrix[state][i]) {
-			index_of_max = i;
-			temp_max = temp_max;
-		}
-	}
-	return index_of_max;
+	int action = randrange(0, q->action_size, 1);
+	update(state, action, q, gamma, lr, reward);
 }
 
 /*
- * Exploit by selecting the action with max value in qMatrix
+ * Exploit by selecting the action with max value in q->matrix
  */
-void q_learn_exploit(double **qMatrix, int state,
+void q_learn_exploit(struct q_matrix *q, int state,
 		     double gamma, double lr,
-		     int state_size, int action_size,
 		     double (*reward)(int state, int action))
 {
-	int action;
-
-	action = q_matrix_max_action(qMatrix, state, action_size);
-	update(state, action, qMatrix, gamma, lr, reward, action_size);
+	int action = q_matrix_max_action(q, state);
+	update(state, action, q, gamma, lr, reward);
 }
 
 /*
  * Explore and exploit, with an explore frequency of epsilon
+ * Return the next recommended action
  */
-int q_learn(double **qMatrix, double epsilon, int state,
+int q_learn(struct q_matrix *q, double epsilon, int state,
 	    double gamma, double lr,
-	    int state_size, int action_size,
-	    int (*select_action)(int state, int action_size),
 	    double (*reward)(int state, int action))
 {
 	double choice = (double)rand() / (double)RAND_MAX;
 	if (choice < epsilon) {
-		q_learn_explore(qMatrix, state, gamma, lr, state_size,
-				action_size, select_action, reward);
+		q_learn_explore(q, state, gamma, lr, reward);
 	} else {
-		q_learn_exploit(qMatrix, state, gamma, lr,
-				state_size, action_size, reward);
+		q_learn_exploit(q, state, gamma, lr, reward);
 	}
-	return q_matrix_max_action(qMatrix, state, action_size);
+	return q_matrix_max_action(q, state);
 }

@@ -17,19 +17,24 @@
 */
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <float.h>
+
+struct q_matrix {
+	double **matrix;
+	int state_size;
+	int action_size;
+};
 
 int randrange(int start, int stop, int step);
-void q_learn_explore(double **qMatrix, int state,
+void q_matrix_init(struct q_matrix *q, int state_size, int action_size);
+void q_matrix_destroy(struct q_matrix *q);
+void q_learn_explore(struct q_matrix *q, int state,
 		     double gamma, double lr,
-		     int state_size, int action_size,
-		     int (*select_action)(int state, int action_size),
 		     double (*reward)(int state, int action));
-void q_learn_exploit(double **qMatrix, int state,
+void q_learn_exploit(struct q_matrix *q, int state,
 		     double gamma, double lr,
-		     int state_size, int action_size,
 		     double (*reward)(int state, int action));
-int q_learn(double **qMatrix, double epsilon, int state,
+int q_learn(struct q_matrix *q, double epsilon, int state,
 	    double gamma, double lr,
-	    int state_size, int action_size,
-	    int (*select_action)(int state, int action_size),
 	    double (*reward)(int state, int action));
