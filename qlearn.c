@@ -23,30 +23,16 @@ int randrange(int start, int stop, int step)
 	return start + ((rand() % width)*step);
 }
 
-static double q_matrix_max(double **qMatrix, int action_size, int action)
+static double q_matrix_max(double **qMatrix, int state, int action_size)
 {
-	int *max_index = malloc(sizeof(int)*action_size);
 	double temp_max = 0.0;
-	int index_of_max;
-	int j = 0;
 	for (int i = 0; i < action_size; i++) {
-		max_index[i] = 0;
-
-		if (temp_max == qMatrix[action][i]) {
-			max_index[j] = i;
-			j++;
-		} else if (temp_max < qMatrix[action][i]) {
-			j = 0;
-			temp_max = qMatrix[action][i];
-			max_index[j] = i;
-			j++;
+		if (temp_max < qMatrix[state][i]) {
+			temp_max = qMatrix[state][i];
 		}
 	}
 
-	//Select a random out of all maximum
-	index_of_max = max_index[rand() % j];
-	free(max_index);
-	return qMatrix[action][index_of_max];
+	return temp_max;
 }
 
 static void update(int current_state, int action, double **qMatrix,
@@ -55,9 +41,11 @@ static void update(int current_state, int action, double **qMatrix,
 {
 	double max_value = 0.0;
 
-	max_value = q_matrix_max(qMatrix, action_size, action);
+	max_value = q_matrix_max(qMatrix, current_state, action_size);
 
-	//Main updation
+	/*
+	 * Main update
+	 */
 	qMatrix[current_state][action] = reward(current_state, action) +
 					 lr * (gamma * max_value);
 }
