@@ -24,10 +24,11 @@ struct q_matrix {
 	double **matrix;
 	int state_size;
 	int action_size;
+	int prev_state;
 };
 
 int randrange(int start, int stop, int step);
-void q_matrix_init(struct q_matrix *q, int state_size, int action_size);
+void q_matrix_init(struct q_matrix *q, int state_size, int action_size, int initial_state);
 void q_matrix_destroy(struct q_matrix *q);
 void q_learn_explore(struct q_matrix *q, int state,
 		     double gamma, double lr,

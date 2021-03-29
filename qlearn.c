@@ -17,7 +17,7 @@
 */
 #include "qlearn.h"
 
-void q_matrix_init(struct q_matrix *q, int state_size, int action_size)
+void q_matrix_init(struct q_matrix *q, int state_size, int action_size, int initial_state)
 {
 	q->matrix = malloc(sizeof(double*)*state_size);
 	for (int i = 0; i < state_size; i++) {
@@ -26,6 +26,7 @@ void q_matrix_init(struct q_matrix *q, int state_size, int action_size)
 	}
 	q->state_size = state_size;
 	q->action_size = action_size;
+	q->prev_state = initial_state;
 }
 
 void q_matrix_destroy(struct q_matrix *q)
@@ -79,8 +80,9 @@ static void update(int current_state, int action, struct q_matrix *q,
 	 */
 	int max_action_index = q_matrix_max_action(q, current_state);
 	double max_action = q->matrix[current_state][max_action_index];
-	q->matrix[current_state][action] = reward(current_state, action) +
+	q->matrix[current_state][action] = reward(q->prev_state, action) +
 		lr * (gamma * max_action);
+	q->prev_state = current_state;
 }
 
 /*
